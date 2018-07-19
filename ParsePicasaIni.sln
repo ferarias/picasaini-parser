@@ -5,13 +5,15 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{747D17DD-0D19-4182-8A0E-3626471A93D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetFer.Picasa.Parser", "src\Parser\DotnetFer.PicasaParser.csproj", "{26181704-6939-456B-91D5-6F22BBD84ED3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetFer.PicasaParser", "src\Parser\DotnetFer.PicasaParser.csproj", "{26181704-6939-456B-91D5-6F22BBD84ED3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetFer.Picasa.Parser.App", "src\App\DotnetFer.PicasaParser.App.csproj", "{8CC9253A-A718-4259-95EB-F7C0C8013640}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetFer.PicasaParser.App", "src\App\DotnetFer.PicasaParser.App.csproj", "{8CC9253A-A718-4259-95EB-F7C0C8013640}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{35A21CF4-42F8-49C5-BF82-BE2F73A82EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PicasaParserTests", "tests\PicasaParserTests\PicasaParserTests.csproj", "{8C30D17E-2B59-4A4D-981C-6642AA997E9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PicasaParserTests", "tests\PicasaParserTests\PicasaParserTests.csproj", "{8C30D17E-2B59-4A4D-981C-6642AA997E9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetFer.PicasaParser.Domain", "src\Domain\DotnetFer.PicasaParser.Domain.csproj", "{D53223D8-24BF-4028-AF7A-6F6E89051918}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{26181704-6939-456B-91D5-6F22BBD84ED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -62,10 +61,29 @@ Global
 		{8C30D17E-2B59-4A4D-981C-6642AA997E9A}.Release|x64.Build.0 = Release|Any CPU
 		{8C30D17E-2B59-4A4D-981C-6642AA997E9A}.Release|x86.ActiveCfg = Release|Any CPU
 		{8C30D17E-2B59-4A4D-981C-6642AA997E9A}.Release|x86.Build.0 = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|x64.Build.0 = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Debug|x86.Build.0 = Debug|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|x64.ActiveCfg = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|x64.Build.0 = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|x86.ActiveCfg = Release|Any CPU
+		{D53223D8-24BF-4028-AF7A-6F6E89051918}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{26181704-6939-456B-91D5-6F22BBD84ED3} = {747D17DD-0D19-4182-8A0E-3626471A93D2}
 		{8CC9253A-A718-4259-95EB-F7C0C8013640} = {747D17DD-0D19-4182-8A0E-3626471A93D2}
 		{8C30D17E-2B59-4A4D-981C-6642AA997E9A} = {35A21CF4-42F8-49C5-BF82-BE2F73A82EF3}
+		{D53223D8-24BF-4028-AF7A-6F6E89051918} = {747D17DD-0D19-4182-8A0E-3626471A93D2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BCECBEEB-A033-46CB-AE4D-07D92B117313}
 	EndGlobalSection
 EndGlobal
