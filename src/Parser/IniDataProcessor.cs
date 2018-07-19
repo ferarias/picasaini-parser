@@ -17,7 +17,8 @@ namespace DotnetFer.PicasaParser
             return iniData.Values
                 .SelectMany(i => i.Picasa)
                 .Where(j => j.Key.Equals("P2Category", StringComparison.CurrentCultureIgnoreCase))
-                .Select(k => k.Value);
+                .Select(k => k.Value)
+                .Distinct();
         }
 
         public Dictionary<string, string> GetAllAlbums(Dictionary<string, PicasaIniData> iniData)
