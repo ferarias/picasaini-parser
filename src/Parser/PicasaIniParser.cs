@@ -2,34 +2,36 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using DotnetFer.PicasaParser.Domain;
 
-namespace DotnetFer.Picasa.Parser
+namespace DotnetFer.PicasaParser
 {
     public class PicasaIniParser
     {
-        private static List<string> validExtensions = new List<string> {"JPG", "GIF", "PNG", "MOV", "AVI", "MP4"};
-        const string pattern = @"\[(.*)\]";
-        static Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
-        public PicasaIniData Parse(string iniFilePath)
+        private static List<string> _validExtensions = new List<string> {"JPG", "GIF", "PNG", "MOV", "AVI", "MP4"};
+        private const string Pattern = @"\[(.*)\]";
+        private static readonly Regex Rgx = new Regex(Pattern, RegexOptions.IgnoreCase);
+
+        public async Task<PicasaIniData> ParseAsync(string iniFilePath)
         {
             var iniData = new PicasaIniData();
             var folder = Path.GetDirectoryName(iniFilePath);
-            var data = new StringWriter();
 
             if (!Directory.Exists(folder))
                 return iniData;
 
             var fileStream = new FileStream(iniFilePath, FileMode.Open);
-            using (StreamReader reader = new StreamReader(fileStream))
+            using (var reader = new StreamReader(fileStream))
             {
                 string line;
-                string section = "";
-                string albumId = "";
-                string picture = "";
-                bool skipSection = false;
-                while ((line = reader.ReadLine()) != null)
+                var section = "";
+                var albumId = "";
+                var picture = "";
+                var skipSection = false;
+                while ((line = await reader.ReadLineAsync()) != null)
                 {
-                    var matches = rgx.Matches(line);
+                    var matches = Rgx.Matches(line);
                     if (matches.Count > 0)
                     {
                         section = matches[0].Groups[1].Value.ToUpper();
@@ -57,13 +59,13 @@ namespace DotnetFer.Picasa.Parser
                                 }
                                 else
                                 {
-                                    System.Console.WriteLine($"File {picturePath} does not exist!");
+                                    Console.WriteLine($"File {picturePath} does not exist!");
                                     skipSection = true;
                                 }
                             }
                             else
                                 {
-                                    Console.WriteLine($"INVALID SECTION {section}");
+                                    Console.WriteLine($"INVALID SECTION {section} in {iniFilePath}");
                                     skipSection = true;
                                 }
                         }
@@ -74,52 +76,46 @@ namespace DotnetFer.Picasa.Parser
                         if(skipSection)
                             continue;
 
-                        string k, v;
-                        var d = line.Split('=');
-                        if (d.Length == 2)
-                        {
-                            k = d[0]; v = d[1];
-                        }
-                        else
-                        {
-                            k = line; v = null;
-                        }
+                        var keyValueLine = line.Split('=');
+                        var keyValuePair = keyValueLine.Length == 2 
+                            ? new KeyValuePair<string, string>(keyValueLine[0], keyValueLine[1]) 
+                            : new KeyValuePair<string, string>(line, string.Empty);
 
                         switch (section)
                         {
                             case "":
                             case "PICASA":
-                                if (iniData.Picasa.ContainsKey(k))
-                                    iniData.Picasa[k] = string.Concat(iniData.Picasa[k], ", ", v);
+                                if (iniData.Picasa.ContainsKey(keyValuePair.Key))
+                                    iniData.Picasa[keyValuePair.Key] = string.Concat(iniData.Picasa[keyValuePair.Key], ", ", keyValuePair.Value);
                                 else
-                                    iniData.Picasa.Add(k, v);
+                                    iniData.Picasa.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
 
                             case "CONTACTS":
-                                iniData.Contacts.Add(k, v);
+                                iniData.Contacts.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
                             case "CONTACTS2":
-                                iniData.Contacts2.Add(k, v);
+                                iniData.Contacts2.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
 
                             case "ENCODING":
-                                if (iniData.Encoding.ContainsKey(k))
-                                    iniData.Encoding[k] = string.Concat(iniData.Encoding[k], ", ", v);
+                                if (iniData.Encoding.ContainsKey(keyValuePair.Key))
+                                    iniData.Encoding[keyValuePair.Key] = string.Concat(iniData.Encoding[keyValuePair.Key], ", ", keyValuePair.Value);
                                 else
-                                    iniData.Encoding.Add(k, v);
+                                    iniData.Encoding.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
                             case "ALBUM":
                                 if (!iniData.Albums.ContainsKey(albumId))
-                                    iniData.Albums.Add(albumId, new Album());
-                                iniData.Albums[albumId].Data.Add(k, v);
+                                    iniData.Albums.Add(albumId, new PicasaAlbum());
+                                iniData.Albums[albumId].Data.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
                             case "PICTURE":
                                 if (!iniData.Pictures.ContainsKey(picture))
-                                    iniData.Pictures.Add(picture, new Picture());
-                                if(iniData.Pictures[picture].Data.ContainsKey(k))
-                                    System.Console.WriteLine($"Duplicate transform in {iniFilePath} => {picture} => {line}");
+                                    iniData.Pictures.Add(picture, new PicasaMediaFile());
+                                if(iniData.Pictures[picture].Data.ContainsKey(keyValuePair.Key))
+                                    Console.WriteLine($"Duplicate transform in {iniFilePath} => {picture} => {line}");
                                 else
-                                    iniData.Pictures[picture].Data.Add(k, v);
+                                    iniData.Pictures[picture].Data.Add(keyValuePair.Key, keyValuePair.Value);
                                 break;
                         }
                     }
@@ -128,46 +124,5 @@ namespace DotnetFer.Picasa.Parser
 
             return iniData;
         }
-    }
-
-    public class PicasaIniData
-    {
-        public Dictionary<string, string> Picasa { get; set; }
-        public Dictionary<string, string> Contacts { get; set; }
-        public Dictionary<string, string> Contacts2 { get; set; }
-        public Dictionary<string, string> Encoding { get; set; }
-        public Dictionary<string, Album> Albums { get; set; }
-        public Dictionary<string, Picture> Pictures { get; set; }
-
-        public PicasaIniData()
-        {
-            Picasa = new Dictionary<string, string>();
-            Contacts = new Dictionary<string, string>();
-            Contacts2 = new Dictionary<string, string>();
-            Encoding = new Dictionary<string, string>();
-            Albums = new Dictionary<string, Album>();
-            Pictures = new Dictionary<string, Picture>();
-        }
-
-
-    }
-    public class Album
-    {
-        public Album()
-        {
-            Data = new Dictionary<string, string>();
-        }
-        public Dictionary<string, string> Data { get; set; }
-
-    }
-
-    public class Picture
-    {
-        public Picture()
-        {
-            Data = new Dictionary<string, string>();
-        }
-        public Dictionary<string, string> Data { get; set; }
-
     }
 }

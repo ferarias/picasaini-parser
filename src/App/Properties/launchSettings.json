@@ -2,7 +2,7 @@
   "profiles": {
     "DotnetFer.PicasaParser.App": {
       "commandName": "Project",
-      "commandLineArgs": "--folder C:\\Users\\ferar\\Pictures\\2017 --verbose 1"
+      "commandLineArgs": "D:\\fotos --verbosity:Verbose"
     }
   }
 }
