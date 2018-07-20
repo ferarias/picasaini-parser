@@ -59,11 +59,22 @@ namespace DotnetFer.PicasaParser.App
             var iniFiles = FindFoldersWithIni(RootFolder);
             LogTrace(TraceLevel.Verbose, $"Found {iniFiles.Count} picasa.ini files");
 
-            var iniData = await ParseIniFilesAsync(iniFiles);
+            var iniData = new List<PicasaIniData>();
+            foreach (var iniFile in iniFiles)
+            {
+                var picasaIniData = await _parser.ParseAsync(iniFile);
+                iniData.Add(picasaIniData);
+            }
             LogTrace(TraceLevel.Verbose, $"Parsed {iniData.Count} items");
 
             LogTrace(TraceLevel.Info, "Picasa folder process finished");
 
+            // Extraneous extra data
+            var extraData = iniData.SelectMany(x => x.PicasaExtraData);
+            foreach (var keyValuePair in extraData)
+            {
+                LogTrace(TraceLevel.Warning, $"Unrecognized: {keyValuePair.Key} {keyValuePair.Value}");
+            }
 
             // All categories
             var allCategories = _processor.GetAllCategories(iniData);
@@ -80,17 +91,6 @@ namespace DotnetFer.PicasaParser.App
             }
 
             return 0;
-        }
-
-
-        private static async Task<Dictionary<string, PicasaIniData>> ParseIniFilesAsync(IEnumerable<string> iniFiles)
-        {
-            var dictionary = new Dictionary<string, PicasaIniData>();
-            foreach (var file in iniFiles)
-            {
-                dictionary.Add(file, await _parser.ParseAsync(file));
-            }
-            return dictionary;
         }
 
         private static List<string> FindFoldersWithIni(string rootFolder)

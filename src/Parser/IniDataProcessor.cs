@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using DotnetFer.PicasaParser.Domain;
 
 namespace DotnetFer.PicasaParser
@@ -12,29 +11,30 @@ namespace DotnetFer.PicasaParser
         {
         }
 
-        public IEnumerable<string> GetAllCategories(Dictionary<string, PicasaIniData> iniData)
+        public IEnumerable<string> GetAllCategories(IList<PicasaIniData> picasaIniDataFiles)
         {
-            return iniData.Values
-                .SelectMany(i => i.Picasa)
-                .Where(j => j.Key.Equals("P2Category", StringComparison.CurrentCultureIgnoreCase))
-                .Select(k => k.Value)
+            return picasaIniDataFiles
+                .SelectMany(i => i.Categories)
+                .Union(picasaIniDataFiles.SelectMany(j => j.P2Categories))
                 .Distinct();
         }
 
-        public Dictionary<string, string> GetAllAlbums(Dictionary<string, PicasaIniData> iniData)
+        public Dictionary<string, PicasaAlbum> GetAllAlbums(IList<PicasaIniData> picasaIniDataFiles)
         {
-            var albums = new Dictionary<string, string>();
-            foreach (var value in iniData.Values)
-            foreach (var album in value.Albums)
-            foreach (var data in album.Value.Data)
+            var allAlbums =
+                from iniData in picasaIniDataFiles
+                from album in iniData.Albums
+                select album;
+
+            var dic = new Dictionary<string, PicasaAlbum>();
+            foreach (var albumPair in allAlbums)
             {
-                if (data.Key != "name") continue;
-                if(!albums.ContainsKey(album.Key))
-                    albums.Add(album.Key, data.Value);
-
+                if(!dic.ContainsKey(albumPair.Key))
+                    dic.Add(albumPair.Key, albumPair.Value);
             }
+            
+            return dic;
 
-            return albums;
         }
 
     }

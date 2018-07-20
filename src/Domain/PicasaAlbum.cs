@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DotnetFer.PicasaParser.Domain
 {
@@ -6,9 +7,17 @@ namespace DotnetFer.PicasaParser.Domain
     {
         public PicasaAlbum()
         {
-            Data = new Dictionary<string, string>();
+            PicasaExtraData = new Dictionary<string, string>();
         }
-        public Dictionary<string, string> Data { get; set; }
+        public string Name { get; set; }
+        public DateTimeOffset Date { get; set; }
 
+        public Dictionary<string, string> PicasaExtraData { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"'{Name}' ({Date:D})";
+        }
     }
 }
