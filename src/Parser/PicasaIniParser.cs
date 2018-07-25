@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DotnetFer.PicasaParser.Domain;
@@ -119,18 +120,65 @@ namespace DotnetFer.PicasaParser
                                 break;
                             case "PICTURE":
                                 if (!iniData.Pictures.ContainsKey(picture))
-                                    iniData.Pictures.Add(picture, new PicasaMediaFile());
-                                if (iniData.Pictures[picture].Data.ContainsKey(keyValuePair.Key))
-                                    Console.WriteLine($"Duplicate transform in {picasaIniFilePath} => {picture} => {line}");
-                                else
-                                    iniData.Pictures[picture].Data.Add(keyValuePair.Key, keyValuePair.Value);
+                                    iniData.Pictures.Add(picture, new PicasaMediaFile { FileName = Path.GetFileName(picture) });
+
+                                ParsePicasaSectionItem(iniData.Pictures[picture], keyValuePair);
+
                                 break;
                         }
                     }
                 }
             }
 
+            if (string.IsNullOrWhiteSpace(iniData.Name))
+                iniData.Name = new DirectoryInfo(Path.GetDirectoryName(picasaIniFilePath)).Name;
+
             return iniData;
+        }
+
+        private static void ParsePicasaSectionItem(PicasaMediaFile picasaMediaFile, KeyValuePair<string, string> keyValuePair)
+        {
+            if (keyValuePair.Key.StartsWith("BKTag") || keyValuePair.Key.Equals("backuphash"))
+                return;
+
+            if (keyValuePair.Key.Equals("faces", StringComparison.OrdinalIgnoreCase))
+                picasaMediaFile.Faces = ParseFaces(keyValuePair.Value);
+            else if (keyValuePair.Key.Equals("rotate", StringComparison.OrdinalIgnoreCase))
+                picasaMediaFile.Rotate = keyValuePair.Value;
+            else if (keyValuePair.Key.Equals("filters", StringComparison.OrdinalIgnoreCase))
+                picasaMediaFile.Filters = ParseFilters(keyValuePair.Value);
+            else if (picasaMediaFile.Data.ContainsKey(keyValuePair.Key))
+                Console.WriteLine($"Duplicate picasa media data in {picasaMediaFile}");
+            else
+                picasaMediaFile.Data.Add(keyValuePair.Key, keyValuePair.Value);
+        }
+
+        /// <summary>
+        /// Example: rect64(4ae03855654062d5),25d7d67eaa5784c9;rect64(aeff562ac1df7455),99554ac4bd8f1a90
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        private static IEnumerable<FaceData> ParseFaces(string value)
+        {
+            var faceDatas = new List<FaceData>();
+            var faces = value.Split(';');
+            foreach (var face in faces)
+            {
+                var faceContact = face.Split(',');
+                if (faceContact.Length != 2) continue;
+                faceDatas.Add(new FaceData
+                {
+                    Rectangle = faceContact[0],
+                    Contact = faceContact[1]
+                });
+            }
+
+            return faceDatas;
+        }
+
+        private static IEnumerable<string> ParseFilters(string value)
+        {
+            return value.Split(';').ToList();
         }
 
         private static void ParsePicasaSectionItem(string albumId, PicasaAlbum picasaAlbum, KeyValuePair<string, string> keyValuePair)

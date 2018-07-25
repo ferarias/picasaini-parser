@@ -77,17 +77,19 @@ namespace DotnetFer.PicasaParser.App
             }
 
             // All categories
+            LogTrace(TraceLevel.Info, "CATEGORIES");
             var allCategories = _processor.GetAllCategories(iniData);
             foreach (var category in allCategories)
             {
-                Console.WriteLine(category);
+                LogTrace(TraceLevel.Info, category);
             }
             
             // All albums
+            LogTrace(TraceLevel.Info, "ALBUMS");
             var albums = _processor.GetAllAlbums(iniData);
             foreach (var album in albums)
             {
-                Console.WriteLine($"{album.Key}:{album.Value}");
+                LogTrace(TraceLevel.Info, $"{album.Key}:{album.Value}");
             }
 
             return 0;
