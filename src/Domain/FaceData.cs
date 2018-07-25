@@ -2,7 +2,7 @@
 {
     public class FaceData
     {
-        public string Rectangle { get; set; }
+        public Rectangle Rectangle { get; set; }
         public string Contact { get; set; }
     }
 }
